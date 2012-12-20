@@ -1,8 +1,13 @@
 package com.automagic.tripcompanion;
 
+import java.io.IOException;
+
+import android.R.string;
 import android.content.Intent;
+import android.media.ExifInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 
 /**
@@ -50,6 +55,7 @@ public class ItemListActivity extends FragmentActivity
         }
 
         // TODO: If exposing deep links into your app, handle intents here.
+
     }
 
     /**
@@ -76,6 +82,48 @@ public class ItemListActivity extends FragmentActivity
             Intent detailIntent = new Intent(this, ItemDetailActivity.class);
             detailIntent.putExtra(ItemDetailFragment.ARG_ITEM_ID, id);
             startActivity(detailIntent);
+            
+            //********************************************************
+            ExifInterface exif;
+            
+            double latitude = 48.863696;
+            double longitude = 2.44695166;
+
+            try {
+                exif = new ExifInterface("/sdcard/DCIM/Camera/IMG_20121212_163224.jpg");
+                
+                String sDate =exif.getAttribute(ExifInterface.TAG_DATETIME);
+                
+                int num1Lat = (int)Math.floor(latitude);
+                int num2Lat = (int)Math.floor((latitude - num1Lat) * 60);
+                double num3Lat = (latitude - ((double)num1Lat+((double)num2Lat/60))) * 3600000;
+
+                int num1Lon = (int)Math.floor(longitude);
+                int num2Lon = (int)Math.floor((longitude - num1Lon) * 60);
+                double num3Lon = (longitude - ((double)num1Lon+((double)num2Lon/60))) * 3600000;
+
+                exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, num1Lat+"/1,"+num2Lat+"/1,"+num3Lat+"/1000");
+                exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, num1Lon+"/1,"+num2Lon+"/1,"+num3Lon+"/1000");
+
+
+                if (latitude > 0) {
+                    exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "N"); 
+                } else {
+                    exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "S");
+                }
+
+                if (longitude > 0) {
+                    exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "E");    
+                } else {
+                exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "W");
+                }
+
+                exif.saveAttributes();
+
+            } catch (IOException e) {
+                Log.e("PictureActivity", e.getLocalizedMessage());
+            }   
+            //******************************
         }
     }
 }
