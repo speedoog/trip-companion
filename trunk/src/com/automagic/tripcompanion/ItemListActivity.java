@@ -1,13 +1,15 @@
 package com.automagic.tripcompanion;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
-import android.R.string;
 import android.content.Intent;
-import android.media.ExifInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+import android.widget.Toast;
 
 
 /**
@@ -40,7 +42,8 @@ public class ItemListActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
 
-        if (findViewById(R.id.item_detail_container) != null) {
+        if (findViewById(R.id.item_detail_container) != null)
+        {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
             // res/values-sw600dp). If this view is present, then the
@@ -84,6 +87,84 @@ public class ItemListActivity extends FragmentActivity
             startActivity(detailIntent);
             
             //********************************************************
+            
+            //
+            // from : http://www.java-samples.com/showtutorial.php?tutorialid=1523
+            //
+            
+            String sFilename = "/mnt/sdcard/download/test.log";
+            
+            try
+            {
+    			File myFile = new File(sFilename);
+    			FileInputStream fIn = new FileInputStream(myFile);
+    			BufferedReader myReader = new BufferedReader( new InputStreamReader(fIn) );
+    			String aDataRow = "";
+    			String aBuffer = "";
+    			while ((aDataRow = myReader.readLine()) != null)
+    			{
+    				aBuffer += aDataRow + "\n";
+    			}
+    			//detailIntent.setText(aBuffer);
+    			myReader.close();
+    			Toast.makeText(getBaseContext(), "Done reading SD 'mysdfile.txt'", Toast.LENGTH_SHORT).show();
+    		} catch (Exception e) {
+    			Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+    		}
+            
+            /*
+            File file = getFileStreamPath("/mnt/sdcard/download/test.log");
+            if (file.exists())
+            {
+                Toast.makeText(this, "File exists in /mnt", Toast.LENGTH_SHORT).show();
+            }
+            */
+            
+//            String filename ="/mnt/sdcard/download/test.log";
+//            FileInputStream fis(filename);
+            
+            /*
+            InputStream inputStream = null;
+			try {
+				inputStream = openFileInput("/mnt/sdcard/download/test.log");
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			*/
+			
+            /*
+            InputStreamReader 	inputStreamReader 	= new InputStreamReader(fis);
+            BufferedReader 		reader 				= new BufferedReader(inputStreamReader);
+            try
+            {
+                String line;
+                while ((line = reader.readLine()) != null)
+                {
+                     String[] RowData = line.split(",");
+                     String date = RowData[0];
+                     String value = RowData[1];
+                    // do something with "data" and "value"
+                }
+            }
+            catch (IOException ex)
+            {
+                // handle exception
+            }
+            finally
+            {
+                try
+                {
+                	inputStream.close();
+                }
+                catch (IOException e) {
+                    // handle exception
+                }
+            }
+            */
+            
+            //********************************************************
+            /*
             ExifInterface exif;
             
             double latitude = 48.863696;
@@ -122,7 +203,8 @@ public class ItemListActivity extends FragmentActivity
 
             } catch (IOException e) {
                 Log.e("PictureActivity", e.getLocalizedMessage());
-            }   
+            }
+            */
             //******************************
         }
     }
