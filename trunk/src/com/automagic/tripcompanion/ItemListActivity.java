@@ -93,6 +93,11 @@ public class ItemListActivity extends FragmentActivity
             //
             
             String sFilename = "/mnt/sdcard/download/test.log";
+
+            // 
+            // GPS - NMEA sentence information
+            // format : http://aprs.gids.nl/nmea/#rmc
+            //
             
             try
             {
@@ -101,9 +106,45 @@ public class ItemListActivity extends FragmentActivity
     			BufferedReader myReader = new BufferedReader( new InputStreamReader(fIn) );
     			String aDataRow = "";
     			String aBuffer = "";
+				int t=0;
+
     			while ((aDataRow = myReader.readLine()) != null)
     			{
-    				aBuffer += aDataRow + "\n";
+    				String sArgs[];
+    				sArgs =aDataRow.split(",");
+    				
+    				String sHeader =sArgs[0];
+    				
+    				if (sHeader.compareTo("$ADVER") == 0)
+    				{
+	    				++t;
+    				}
+    				else if (sHeader.compareToIgnoreCase("$GPRMC") == 0)
+    				{
+    					//
+    					// $GPRMC - Recommended minimum specific GPS/Transit data (12 Args)
+    					//
+    					// eg4. $GPRMC,hhmmss.ss,A,llll.ll,a,yyyyy.yy,a,x.x,x.x,ddmmyy,x.x,a*hh
+    					// 1    = UTC of position fix
+    					// 2    = Data status (V=navigation receiver warning)
+    					// 3    = Latitude of fix
+    					// 4    = N or S
+    					// 5    = Longitude of fix
+    					// 6    = E or W
+    					// 7    = Speed over ground in knots
+    					// 8    = Track made good in degrees True
+    					// 9    = UT date
+    					// 10   = Magnetic variation degrees (Easterly var. subtracts from true course)
+    					// 11   = E or W
+    					// 12   = Checksum
+    					
+	    				++t;
+    				}
+    				else if (sHeader.compareToIgnoreCase("$GPGGA") == 0)
+    				{
+    					// 14 Args
+	    				++t;
+    				}
     			}
     			//detailIntent.setText(aBuffer);
     			myReader.close();
