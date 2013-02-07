@@ -1,13 +1,20 @@
 package automagic.tripcompanion;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Vector;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -24,6 +31,61 @@ public class MainActivity extends Activity {
 	ExpandableListAdapter _ListviewAdapter;
 	Button _ButtonGo;
 	ProgressBar _ProgressBar;
+	
+
+	public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth)
+	{
+		int width = bm.getWidth();
+		int height = bm.getHeight();
+		float scaleWidth = ((float) newWidth) / width;
+		float scaleHeight = ((float) newHeight) / height;
+		
+		// create a matrix for the manipulation
+		Matrix matrix = new Matrix();
+		
+		// resize the bit map
+		matrix.postScale(scaleWidth, scaleHeight);
+		
+		// recreate the new Bitmap
+		Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
+
+		return resizedBitmap;
+	}
+
+
+	void ResizeJpg(String sIn, String sOut)
+	{
+		Bitmap myBitmapIn = BitmapFactory.decodeFile(sIn);
+		
+		Bitmap myBitmapOut=getResizedBitmap(myBitmapIn, 100, 100); 
+
+		FileOutputStream fileOutputStream = null;
+		try
+		{
+			fileOutputStream = new FileOutputStream(sOut);
+		} catch (FileNotFoundException e) { e.printStackTrace(); }
+		
+		int quality = 50; 
+		BufferedOutputStream bos = new BufferedOutputStream(fileOutputStream);
+
+		myBitmapOut.compress(CompressFormat.JPEG, quality, bos);
+
+	}
+	
+	void TestFileList()
+	{
+		// test file list
+		File fileRoot =new File("/mnt/sdcard/download/GPS");
+		File[] fileList =fileRoot.listFiles();
+		for(int i=0; i < fileList.length; i++)
+	    {
+	       File file = fileList[i];
+	       ToastMe(file.getName());
+	    }
+	
+		int t=0;
+		++t;
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -36,18 +98,10 @@ public class MainActivity extends Activity {
 
 		// go button
 		_ButtonGo.setOnClickListener( new View.OnClickListener() { @Override public void onClick(View view) { ButtonGo(); }} );
-		
-		// test file list
-		File fileRoot =new File("/mnt/sdcard/download/GPS");
-		File[] fileList =fileRoot.listFiles();
-		for(int i=0; i < fileList.length; i++)
-	    {
-	       File file = fileList[i];
-	       ToastMe(file.getName());
-	    }
 
-		int t=0;
-		++t;
+		TestFileList();
+		
+		ResizeJpg("/mnt/sdcard/download/20120822_094502.jpg", "/mnt/sdcard/download/TEST.jpg"); 
 
 	}
 
