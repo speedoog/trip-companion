@@ -52,7 +52,6 @@ public class MainActivity extends Activity {
 		return resizedBitmap;
 	}
 
-
 	void ResizeJpg(String sIn, String sOut)
 	{
 		Bitmap myBitmapIn = BitmapFactory.decodeFile(sIn);
@@ -69,7 +68,6 @@ public class MainActivity extends Activity {
 		BufferedOutputStream bos = new BufferedOutputStream(fileOutputStream);
 
 		myBitmapOut.compress(CompressFormat.JPEG, quality, bos);
-
 	}
 	
 	void TestFileList()
@@ -86,6 +84,12 @@ public class MainActivity extends Activity {
 		int t=0;
 		++t;
 	}
+	
+	void TestJpeg()
+	{
+		ResizeJpg("/mnt/sdcard/download/JPG/flip.jpg", "/mnt/sdcard/download/JPG/flip_resize.jpg"); 
+		ResizeJpg("/mnt/sdcard/download/JPG/ok.jpg", "/mnt/sdcard/download/JPG/ok_resize.jpg"); 
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -99,10 +103,7 @@ public class MainActivity extends Activity {
 		// go button
 		_ButtonGo.setOnClickListener( new View.OnClickListener() { @Override public void onClick(View view) { ButtonGo(); }} );
 
-		TestFileList();
-		
-		ResizeJpg("/mnt/sdcard/download/20120822_094502.jpg", "/mnt/sdcard/download/TEST.jpg"); 
-
+		TestJpeg();
 	}
 
 	public void ButtonGo()
