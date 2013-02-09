@@ -52,11 +52,11 @@ public class MainActivity extends Activity {
 		return resizedBitmap;
 	}
 
-	void ResizeJpg(String sIn, String sOut)
+	void ResizeJpg(String sIn, String sOut, int quality, int Height, int Width)
 	{
 		Bitmap myBitmapIn = BitmapFactory.decodeFile(sIn);
 		
-		Bitmap myBitmapOut=getResizedBitmap(myBitmapIn, 100, 100); 
+		Bitmap myBitmapOut=getResizedBitmap(myBitmapIn, Height, Width); 
 
 		FileOutputStream fileOutputStream = null;
 		try
@@ -64,7 +64,6 @@ public class MainActivity extends Activity {
 			fileOutputStream = new FileOutputStream(sOut);
 		} catch (FileNotFoundException e) { e.printStackTrace(); }
 		
-		int quality = 50; 
 		BufferedOutputStream bos = new BufferedOutputStream(fileOutputStream);
 
 		myBitmapOut.compress(CompressFormat.JPEG, quality, bos);
@@ -87,8 +86,8 @@ public class MainActivity extends Activity {
 	
 	void TestJpeg()
 	{
-		ResizeJpg("/mnt/sdcard/download/JPG/flip.jpg", "/mnt/sdcard/download/JPG/flip_resize.jpg"); 
-		ResizeJpg("/mnt/sdcard/download/JPG/ok.jpg", "/mnt/sdcard/download/JPG/ok_resize.jpg"); 
+		ResizeJpg("/mnt/sdcard/download/JPG/flip.jpg", "/mnt/sdcard/download/JPG/flip_resize.jpg", 50, 100, 100); 
+		ResizeJpg("/mnt/sdcard/download/JPG/ok.jpg", "/mnt/sdcard/download/JPG/ok_resize.jpg", 50, 100, 100);
 	}
 
 	@Override
@@ -103,13 +102,18 @@ public class MainActivity extends Activity {
 		// go button
 		_ButtonGo.setOnClickListener( new View.OnClickListener() { @Override public void onClick(View view) { ButtonGo(); }} );
 
-		TestJpeg();
+		//TestJpeg();
 	}
 
 	public void ButtonGo()
 	{
 		ToastMe("Go !");
+		
+		ResizeJpg("/mnt/sdcard/download/JPG/big.jpg", "/mnt/sdcard/download/JPG/big_resize.jpg", 80, 1920, 1280);
 
+		ToastMe("End");
+		
+		/*
 		_ButtonGo.setClickable(false);
 		_ButtonGo.setEnabled(false);
 		
@@ -120,6 +124,7 @@ public class MainActivity extends Activity {
 
 		asyncTaskUpdateProgress async =new asyncTaskUpdateProgress();
 		async.execute(sFilename);
+		*/
 	}
 
 	public void ToastMe(String sText) 						{ Toast.makeText(this, sText, Toast.LENGTH_SHORT).show();	}
