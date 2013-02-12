@@ -52,21 +52,55 @@ public class MainActivity extends Activity {
 		return resizedBitmap;
 	}
 
+	private Bitmap decodeFile(File f, int size)
+	{
+	    try {
+	        //Decode image size
+	        BitmapFactory.Options o = new BitmapFactory.Options();
+	        o.inJustDecodeBounds = true;
+	        BitmapFactory.decodeStream(new FileInputStream(f),null,o);
+
+	        //The new size we want to scale to
+	        final int REQUIRED_SIZE=size;
+
+	        //Find the correct scale value. It should be the power of 2.
+	        int scale=1;
+	        while(o.outWidth/scale/2>=REQUIRED_SIZE && o.outHeight/scale/2>=REQUIRED_SIZE)
+	            scale*=2;
+
+	        //Decode with inSampleSize
+	        BitmapFactory.Options o2 = new BitmapFactory.Options();
+	        o2.inSampleSize=scale;
+	        return BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
+	    } catch (FileNotFoundException e) {}
+	    return null;
+	}
+
+	void ResizeJpg2(String sIn, String sOut, int quality, int Height, int Width)
+	{
+		File fileIn =new File(sIn);
+		Bitmap myBitmapOut =decodeFile(fileIn, Width);
+		SaveJpg(sOut, myBitmapOut, quality);
+	}
+
 	void ResizeJpg(String sIn, String sOut, int quality, int Height, int Width)
 	{
 		Bitmap myBitmapIn = BitmapFactory.decodeFile(sIn);
-		
 		Bitmap myBitmapOut=getResizedBitmap(myBitmapIn, Height, Width); 
-
+		SaveJpg(sOut, myBitmapOut, quality);
+	}
+	
+	void SaveJpg(String sFilenameOut, Bitmap bitmap, int quality)
+	{
 		FileOutputStream fileOutputStream = null;
 		try
 		{
-			fileOutputStream = new FileOutputStream(sOut);
+			fileOutputStream = new FileOutputStream(sFilenameOut);
 		} catch (FileNotFoundException e) { e.printStackTrace(); }
 		
 		BufferedOutputStream bos = new BufferedOutputStream(fileOutputStream);
 
-		myBitmapOut.compress(CompressFormat.JPEG, quality, bos);
+		bitmap.compress(CompressFormat.JPEG, quality, bos);
 	}
 	
 	void TestFileList()
@@ -109,7 +143,7 @@ public class MainActivity extends Activity {
 	{
 		ToastMe("Go !");
 		
-		ResizeJpg("/mnt/sdcard/download/JPG/big.jpg", "/mnt/sdcard/download/JPG/big_resize.jpg", 80, 1920, 1280);
+		ResizeJpg2("/mnt/sdcard/download/JPG/big.jpg", "/mnt/sdcard/download/JPG/big_resize.jpg", 80, 1920, 1280);
 
 		ToastMe("End");
 		
