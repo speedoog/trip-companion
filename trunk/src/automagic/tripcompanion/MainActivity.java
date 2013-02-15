@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
 	ProgressBar _ProgressBar;
 	
 
-	public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth)
+	public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight)
 	{
 		int width = bm.getWidth();
 		int height = bm.getHeight();
@@ -51,32 +51,69 @@ public class MainActivity extends Activity {
 
 		return resizedBitmap;
 	}
+	
+	static int Max(int a, int b)
+	{
+		return a>b?a:b;
+	}
 
-	private Bitmap decodeFile(File f, int size)
+	private static boolean isPowerOfTwo(int n)
+	{
+		double logNbase2 =  Math.log(n)/Math.log(2);	
+		int logNbase2Integer = (int) (Math.floor(logNbase2));
+		
+		if(logNbase2-logNbase2Integer==0)
+			return true;
+		else
+			return false;
+	}
+
+	private static int NearestPowerOfTwo(int n)
+	{
+		double logNbase2 =  Math.log(n)/Math.log(2);
+		int nVal =(int)Math.pow(2, logNbase2);
+		return nVal;
+	}
+
+	private Bitmap decodeFile(File f, int nMaxSize)
 	{
 	    try {
-	        //Decode image size
+	        // Decode image size
 	        BitmapFactory.Options o = new BitmapFactory.Options();
 	        o.inJustDecodeBounds = true;
 	        BitmapFactory.decodeStream(new FileInputStream(f),null,o);
 
-	        //The new size we want to scale to
-	        final int REQUIRED_SIZE=size;
+	        // Find the correct scale value. It should be the power of 2.
+	        int nBigestSize =Max(o.outWidth, o.outHeight);
+	        
+	        float rScale =((float)nBigestSize)/((float)nMaxSize);
+	        
+	        int scale=NearestPowerOfTwo((int)rScale);
+//	        while(o.outWidth/scale/2>=nMaxSize && o.outHeight/scale/2>=nMaxSize)
+//	            scale*=2;
+	        
+	        float rRatio =((float)o.outWidth)/((float)o.outHeight);
 
-	        //Find the correct scale value. It should be the power of 2.
-	        int scale=1;
-	        while(o.outWidth/scale/2>=REQUIRED_SIZE && o.outHeight/scale/2>=REQUIRED_SIZE)
-	            scale*=2;
-
-	        //Decode with inSampleSize
+	        // Decode with inSampleSize
 	        BitmapFactory.Options o2 = new BitmapFactory.Options();
-	        o2.inSampleSize=scale;
-	        return BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
+	        o2.inSampleSize =scale;
+
+	        Bitmap BmpLoaded =BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
+	        
+	        // loaded, now resize ...
+	        int nNewSizeX =nMaxSize;
+	        int nNewSizeY =(int)(((float)nMaxSize)/rRatio);
+	        
+	        //---------------------------- fail here ---------------------
+	        Bitmap BmpOut =getResizedBitmap(BmpLoaded, nNewSizeX, nNewSizeY);
+	        		
+	        return BmpOut;
+
 	    } catch (FileNotFoundException e) {}
 	    return null;
 	}
 
-	void ResizeJpg2(String sIn, String sOut, int quality, int Height, int Width)
+	void ResizeJpg2(String sIn, String sOut, int quality, int Width)
 	{
 		File fileIn =new File(sIn);
 		Bitmap myBitmapOut =decodeFile(fileIn, Width);
@@ -118,12 +155,6 @@ public class MainActivity extends Activity {
 		++t;
 	}
 	
-	void TestJpeg()
-	{
-		ResizeJpg("/mnt/sdcard/download/JPG/flip.jpg", "/mnt/sdcard/download/JPG/flip_resize.jpg", 50, 100, 100); 
-		ResizeJpg("/mnt/sdcard/download/JPG/ok.jpg", "/mnt/sdcard/download/JPG/ok_resize.jpg", 50, 100, 100);
-	}
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -143,7 +174,10 @@ public class MainActivity extends Activity {
 	{
 		ToastMe("Go !");
 		
-		ResizeJpg2("/mnt/sdcard/download/JPG/big.jpg", "/mnt/sdcard/download/JPG/big_resize.jpg", 80, 1920, 1280);
+//		ResizeJpg("/mnt/sdcard/download/JPG/flip.jpg", "/mnt/sdcard/download/JPG/flip_resize.jpg", 50, 100, 100); 
+//		ResizeJpg("/mnt/sdcard/download/JPG/ok.jpg", "/mnt/sdcard/download/JPG/ok_resize.jpg", 50, 100, 100);
+		
+		ResizeJpg2("/mnt/sdcard/download/JPG/big.jpg", "/mnt/sdcard/download/JPG/big_resize.jpg", 80, 1920);
 
 		ToastMe("End");
 		
