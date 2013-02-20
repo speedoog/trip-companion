@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Vector;
 
 import android.app.Activity;
@@ -15,9 +14,9 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -57,6 +56,7 @@ public class MainActivity extends Activity {
 		return a>b?a:b;
 	}
 
+	/*
 	private static boolean isPowerOfTwo(int n)
 	{
 		double logNbase2 =  Math.log(n)/Math.log(2);	
@@ -67,6 +67,7 @@ public class MainActivity extends Activity {
 		else
 			return false;
 	}
+	*/
 
 	private static int NearestPowerOfTwo(int n)
 	{
@@ -155,6 +156,50 @@ public class MainActivity extends Activity {
 		++t;
 	}
 	
+	void CopyExifTag(ExifInterface exifSrc, ExifInterface exifDst, String sTag)
+	{
+		String sTagValue =exifSrc.getAttribute(sTag);
+		if (sTagValue!=null)
+		{
+			exifDst.setAttribute(sTag, sTagValue);
+		}
+	}
+	
+	void CopyExif(String sSrc, String sDst)
+	{
+		try {
+		    // copy paste exif information from original file to new
+		    // file
+		    ExifInterface exifSrc = new ExifInterface(sSrc);
+		    ExifInterface exifDst = new ExifInterface(sDst);
+
+		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_APERTURE				);
+		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_DATETIME				);
+		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_EXPOSURE_TIME			);
+//			TAG_FLASH					// int
+//			TAG_FOCAL_LENGTH			// float
+//			TAG_GPS_ALTITUDE			// float
+//			TAG_GPS_ALTITUDE_REF		// int
+		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_GPS_DATESTAMP			);
+		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_GPS_LATITUDE			);
+		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_GPS_LATITUDE_REF		);
+		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_GPS_LONGITUDE			);
+		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_GPS_LONGITUDE_REF		);
+		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_GPS_PROCESSING_METHOD	);
+		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_GPS_TIMESTAMP			);
+		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_ISO						);
+		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_MAKE					);
+		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_MODEL					);
+//			TAG_ORIENTATION				// int
+//			TAG_WHITE_BALANCE 			// int
+
+		    exifDst.saveAttributes();
+
+		} catch (Exception e) {
+		    e.printStackTrace();
+		}
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -177,7 +222,12 @@ public class MainActivity extends Activity {
 //		ResizeJpg("/mnt/sdcard/download/JPG/flip.jpg", "/mnt/sdcard/download/JPG/flip_resize.jpg", 50, 100, 100); 
 //		ResizeJpg("/mnt/sdcard/download/JPG/ok.jpg", "/mnt/sdcard/download/JPG/ok_resize.jpg", 50, 100, 100);
 		
-		ResizeJpg2("/mnt/sdcard/download/JPG/big.jpg", "/mnt/sdcard/download/JPG/big_resize.jpg", 80, 1920);
+		// path : /mnt/sdcard/download/VietFull
+		
+		String sIn 	="/mnt/sdcard/download/JPG/big.jpg";
+		String sOut ="/mnt/sdcard/download/JPG/big_resize.jpg";
+		ResizeJpg2(sIn, sOut, 80, 1920);
+		CopyExif(sIn, sOut);
 
 		ToastMe("End");
 		
