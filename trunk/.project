@@ -3,6 +3,7 @@
 	<name>TripCompanion</name>
 	<comment></comment>
 	<projects>
+		<project>SanselanAndroidExif</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

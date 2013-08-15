@@ -6,8 +6,23 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.List;
 import java.util.Vector;
+
+import org.apache.sanselan.ImageReadException;
+import org.apache.sanselan.ImageWriteException;
+import org.apache.sanselan.Sanselan;
+import org.apache.sanselan.common.IImageMetadata;
+import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
+import org.apache.sanselan.formats.jpeg.exifRewrite.ExifRewriter;
+import org.apache.sanselan.formats.tiff.TiffImageMetadata;
+import org.apache.sanselan.formats.tiff.constants.TagInfo;
+import org.apache.sanselan.formats.tiff.write.TiffOutputDirectory;
+import org.apache.sanselan.formats.tiff.write.TiffOutputField;
+import org.apache.sanselan.formats.tiff.write.TiffOutputSet;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -25,12 +40,14 @@ import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+
 public class MainActivity extends Activity {
 	ExpandableListView _Listview;
 	ExpandableListAdapter _ListviewAdapter;
 	Button _ButtonGo;
 	ProgressBar _ProgressBar;
 	
+	public static GPSLog _GPSLog;
 
 	public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight)
 	{
@@ -164,6 +181,145 @@ public class MainActivity extends Activity {
 			exifDst.setAttribute(sTag, sTagValue);
 		}
 	}
+	/*
+	private static void copyExifData(String sIn, String sOut , List<TagInfo> excludedFields)
+	{
+		File sourceFile	=new File(sIn);
+		File destFile	=new File(sOut);
+		
+	    String tempFileName = destFile.getAbsolutePath() + ".tmp";
+	    File tempFile = null;
+	    OutputStream tempStream = null;
+	 
+	    try
+	    {
+	        tempFile = new File (tempFileName);
+	 
+	        TiffOutputSet sourceSet = getSanselanOutputSet(sourceFile);
+	        TiffOutputSet destSet = getSanselanOutputSet(destFile);
+	 
+	        destSet.getOrCreateExifDirectory();
+	 
+	        // Go through the source directories
+	        List<?> sourceDirectories = sourceSet.getDirectories();
+	        for (int i=0; i<sourceDirectories.size(); i++)
+	        {
+	            TiffOutputDirectory sourceDirectory = (TiffOutputDirectory)sourceDirectories.get(i);
+	            TiffOutputDirectory destinationDirectory = getOrCreateExifDirectory(destSet, sourceDirectory);
+	 
+	            if (destinationDirectory == null) continue; // failed to create
+	 
+	            // Loop the fields
+	            List<?> sourceFields = sourceDirectory.getFields();
+	            for (int j=0; j<sourceFields.size(); j++)
+	            {
+	                // Get the source field
+	                TiffOutputField sourceField = (TiffOutputField) sourceFields.get(j);
+	 
+	                // Check exclusion list
+//	                if (excludedFields.contains(sourceField.tagInfo))
+//	                {
+//	                    destinationDirectory.removeField(sourceField.tagInfo);
+//	                    continue;
+//	                }
+	 
+	                // Remove any existing field
+	                destinationDirectory.removeField(sourceField.tagInfo);
+	 
+	                // Add field
+	                destinationDirectory.add(sourceField);
+	            }
+	        }
+	 
+	        // Save data to destination
+	        tempStream = new BufferedOutputStream(new FileOutputStream(tempFile));
+	        new ExifRewriter().updateExifMetadataLossless(destFile, tempStream, destSet);
+	        tempStream.close();
+	 
+	        // Replace file
+	        if (destFile.delete())
+	        {
+	            tempFile.renameTo(destFile);
+	        }
+	    }
+	    catch (ImageReadException exception)
+	    {
+	        exception.printStackTrace();
+	    }
+	    catch (ImageWriteException exception)
+	    {
+	        exception.printStackTrace();
+	    }
+	    catch (IOException exception)
+	    {
+	        exception.printStackTrace();
+	    }
+	    finally
+	    {
+	        if (tempStream != null)
+	        {
+	            try
+	            {
+	                tempStream.close();
+	            }
+	            catch (IOException e)
+	            {
+	            }
+	        }
+	 
+	        if (tempFile != null)
+	        {
+	            if (tempFile.exists()) tempFile.delete();
+	        }
+	    }
+	}
+	 
+	private static TiffOutputSet getSanselanOutputSet(File jpegImageFile)
+	        throws IOException, ImageReadException, ImageWriteException
+	{
+	    TiffOutputSet outputSet = null;
+	 
+	    // note that metadata might be null if no metadata is found.
+	    IImageMetadata metadata = Sanselan.getMetadata(jpegImageFile);
+	    JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
+	    if (jpegMetadata != null)
+	    {
+	        // note that exif might be null if no Exif metadata is found.
+	        TiffImageMetadata exif = jpegMetadata.getExif();
+	 
+	        if (exif != null)
+	        {
+	            outputSet = exif.getOutputSet();
+	        }
+	    }
+	 
+	    // if file does not contain any exif metadata, we create an empty
+	    // set of exif metadata. Otherwise, we keep all of the other
+	    // existing tags.
+	    if (outputSet == null)
+	        outputSet = new TiffOutputSet();
+	 
+	    // Return
+	    return outputSet;
+	}
+	 
+	private static TiffOutputDirectory getOrCreateExifDirectory(TiffOutputSet outputSet, TiffOutputDirectory outputDirectory)
+	{
+	    TiffOutputDirectory result = outputSet.findDirectory(outputDirectory.type);
+	    if (result != null)
+	        return result;
+	    result = new TiffOutputDirectory(outputDirectory.type);
+	    try
+	    {
+	        outputSet.addDirectory(result);
+	    }
+	    catch (ImageWriteException e)
+	    {
+	        return null;
+	    }
+	    return result;
+	}
+	*/
 	
 	void CopyExif(String sSrc, String sDst)
 	{
@@ -176,10 +332,12 @@ public class MainActivity extends Activity {
 		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_APERTURE				);
 		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_DATETIME				);
 		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_EXPOSURE_TIME			);
+		    
 //			TAG_FLASH					// int
 //			TAG_FOCAL_LENGTH			// float
 //			TAG_GPS_ALTITUDE			// float
 //			TAG_GPS_ALTITUDE_REF		// int
+		    
 		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_GPS_DATESTAMP			);
 		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_GPS_LATITUDE			);
 		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_GPS_LATITUDE_REF		);
@@ -190,6 +348,7 @@ public class MainActivity extends Activity {
 		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_ISO						);
 		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_MAKE					);
 		    CopyExifTag(exifSrc, exifDst, ExifInterface.TAG_MODEL					);
+		    
 //			TAG_ORIENTATION				// int
 //			TAG_WHITE_BALANCE 			// int
 
@@ -215,34 +374,51 @@ public class MainActivity extends Activity {
 		//TestJpeg();
 	}
 
+	public static String ROOT ="/storage/sdcard0/download"; 
+
 	public void ButtonGo()
 	{
-		ToastMe("Go !");
+		try
+		{
+			
+			ToastMe("Go !");
+			
+	//		ResizeJpg("/mnt/sdcard/download/JPG/flip.jpg", "/mnt/sdcard/download/JPG/flip_resize.jpg", 50, 100, 100); 
+	//		ResizeJpg("/mnt/sdcard/download/JPG/ok.jpg", "/mnt/sdcard/download/JPG/ok_resize.jpg", 50, 100, 100);
+			
+			// path : /mnt/sdcard/download/VietFull
+			
+			
+	//		String sIn 	="/mnt/sdcard/download/JPG/big.jpg";
+	//		String sOut ="/mnt/sdcard/download/JPG/big_resize.jpg";
+	//		ResizeJpg2(sIn, sOut, 80, 1920);
+	//		CopyExif(sIn, sOut);
+			
+			
+			_ButtonGo.setClickable(false);
+			_ButtonGo.setEnabled(false);
+			
+			// String sFilename = "/mnt/sdcard/download/test.log";
+			//String sFilename = "/mnt/sdcard/download/GPS/GPS_20121209_122833.log"; // small log montreuil (22ko)
+			//String sFilename =ROOT+"/GPS/GPS_20121225_133848.log"; // St just - Pin (1.8Mo)
+			
+			String sFilename =ROOT+"/GPS/GPS_20121226_135637.log"; // balade a Pin (1Mo)
+	
+			_GPSLog =new GPSLog();
+			_GPSLog.Init(sFilename);
+			
+			asyncTaskUpdateProgress async =new asyncTaskUpdateProgress();
+			async.execute(sFilename);
+	
+			ToastMe("End read");
+			
 		
-//		ResizeJpg("/mnt/sdcard/download/JPG/flip.jpg", "/mnt/sdcard/download/JPG/flip_resize.jpg", 50, 100, 100); 
-//		ResizeJpg("/mnt/sdcard/download/JPG/ok.jpg", "/mnt/sdcard/download/JPG/ok_resize.jpg", 50, 100, 100);
-		
-		// path : /mnt/sdcard/download/VietFull
-		
-		String sIn 	="/mnt/sdcard/download/JPG/big.jpg";
-		String sOut ="/mnt/sdcard/download/JPG/big_resize.jpg";
-		ResizeJpg2(sIn, sOut, 80, 1920);
-		CopyExif(sIn, sOut);
-
-		ToastMe("End");
-		
-		/*
-		_ButtonGo.setClickable(false);
-		_ButtonGo.setEnabled(false);
-		
-		// String sFilename = "/mnt/sdcard/download/test.log";
-		//String sFilename = "/mnt/sdcard/download/GPS/GPS_20121209_122833.log"; // small log montreuil (22ko)
-		String sFilename ="/mnt/sdcard/download/GPS/GPS_20121225_133848.log"; // St just - Pin (1.8Mo)
-		// String sFilename ="/mnt/sdcard/download/GPS/GPS_20121226_135637.log"; // balade a Pin (1Mo)
-
-		asyncTaskUpdateProgress async =new asyncTaskUpdateProgress();
-		async.execute(sFilename);
-		*/
+//			ToastMe("End write");
+		}
+		catch (Exception e)
+        {
+		}
+	
 	}
 
 	public void ToastMe(String sText) 						{ Toast.makeText(this, sText, Toast.LENGTH_SHORT).show();	}
@@ -257,8 +433,6 @@ public class MainActivity extends Activity {
 
 	public class asyncTaskUpdateProgress extends AsyncTask<String, Integer, Void>
 	{
-		Vector<NMEAFrame>	_GpsFrames;
-
 		@Override protected void onPostExecute(Void result) 			{ _ButtonGo.setClickable(true); _ButtonGo.setEnabled(true); ToastMe("Done !"); 	}
 		@Override protected void onPreExecute() 						{ /* progress = 0;*/ 								}
 		@Override protected void onProgressUpdate(Integer... values) 	{ _ProgressBar.setProgress(values[0]);  			}
@@ -266,14 +440,11 @@ public class MainActivity extends Activity {
 		@Override
 		protected Void doInBackground(String... arg0)
 		{
-//			ToastMe("Go !");
-
 			String sFilename =arg0[0];
-
-			_GpsFrames =new Vector<NMEAFrame>();
-
 	        try
 	        {
+				// -----------------------------
+
 				File myFile = new File(sFilename);
 				long	_nFileSize = myFile.length();
 				long	_nFilePos  = 0;
@@ -284,12 +455,7 @@ public class MainActivity extends Activity {
 				String aDataRow = "";
 				while ((aDataRow = myReader.readLine()) != null)
 				{
-					if (aDataRow.length()>=4 && aDataRow.charAt(3) =='G')
-					{
-						NMEAFrame GpsFrame =new NMEAFrame();
-						GpsFrame.FeedWithFrameGPGGA(aDataRow);
-						_GpsFrames.add(GpsFrame);
-					}
+					MainActivity._GPSLog.FeedWithNmeaFrame(aDataRow);
 					
 					_nFilePos +=aDataRow.length() + 2;		// +2 = CR+LF
 					double ratio =((double)_nFilePos) / ((double)_nFileSize);
@@ -298,6 +464,12 @@ public class MainActivity extends Activity {
 				
 				myReader.close();
 				
+				// -----------------------------
+				
+				String sGPXOut =MainActivity.ROOT+"/GPS/test.gpx";
+				MainActivity._GPSLog.WriteGPX(sGPXOut);
+				
+				// -----------------------------
 			}
 	        catch (Exception e)
 	        {

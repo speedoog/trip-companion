@@ -1,21 +1,25 @@
 package automagic.tripcompanion;
 
-public class NMEAFrame {
+public class GPSFrame {
 
 	int		_TimeHour;
 	int		_TimeMinutes;
 	int		_TimeSeconds;
-	
-	float	_LatitudeValue;			// Latitude  => 4851.8273
-	char	_LatitudeSign;			// 'N' or 'S'
 
-	float	_LongitudeValue;		// Longitude => 00226.9146
+	int		_DateDay;
+	int		_DateMonth;
+	int		_DateYear;
+
+	double	_LatitudeValue;			// Latitude  => 4851.8273
+	double	_LongitudeValue;		// Longitude => 00226.9146
+
+	char	_LatitudeSign;			// 'N' or 'S'
 	char	_LongitudeSign;			// 'E' or 'W'
 
-	float 	_Altitude;				// altitude
+	float 	_Altitude=-1;			// altitude
 	
-	NMEAFrame()	{	}
-	
+	GPSFrame()	{ }
+
 	void FeedWithFrameGPGGA(String sFrame)
 	{
 		String sArgs[];
@@ -32,12 +36,12 @@ public class NMEAFrame {
 		_TimeMinutes 	=Integer.parseInt(sArgs[1].substring(2, 4));
 		_TimeSeconds 	=(int)Float.parseFloat(sArgs[1].substring(4, 10));
 		
-		_LatitudeValue 	=Float.parseFloat(sArgs[2]);
+		double latitude 	=Double.parseDouble(sArgs[2])/100.0;
 		// 3    = LatitudeSign			 "N" or "S"
 		_LatitudeSign	=sArgs[3].charAt(0);
 
 		// 4    = Longitude 			"yyyyy.yy"
-		_LongitudeValue =Float.parseFloat(sArgs[4]);
+		double longitude =Double.parseDouble(sArgs[4])/100.0;
 		// 5    = LongitudeSign 		"E" or "W"
 		_LongitudeSign	=sArgs[5].charAt(0);
 
@@ -54,9 +58,16 @@ public class NMEAFrame {
 		
 		// 13   = Age in seconds since last update from diff. reference station
 		// 14   = Diff. reference station ID# '*' Checksum
+		
+	    double LatDeg  = Math.floor(latitude);
+	    double LatPart = (latitude - LatDeg) * 100.0 / 60.0;
+	    _LatitudeValue = LatDeg+LatPart;
+
+	    double LonDeg  = Math.floor(longitude);
+	    double LonPart = (longitude - LonDeg) * 100.0 / 60.0;
+	    _LongitudeValue= LonDeg+LonPart;
 	}
 	
-	/*
 	void FeedWithFrameGPRMC(String sFrame)
 	{
 		String sArgs[];
@@ -101,6 +112,6 @@ public class NMEAFrame {
 		//_AltitudeGeoidalValue
 		//_AltitudeGeoidalUnit
 	}
-	*/
+
 		
 }
