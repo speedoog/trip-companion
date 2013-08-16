@@ -34,7 +34,7 @@ public class GPSFrame {
 		// 1    = UTC 					"hhmmss.ss"
 		_TimeHour 		=Integer.parseInt(sArgs[1].substring(0, 2));
 		_TimeMinutes 	=Integer.parseInt(sArgs[1].substring(2, 4));
-		_TimeSeconds 	=(int)Float.parseFloat(sArgs[1].substring(4, 10));
+		_TimeSeconds 	=(int)Float.parseFloat(sArgs[1].substring(4));
 		
 		double latitude 	=Double.parseDouble(sArgs[2])/100.0;
 		// 3    = LatitudeSign			 "N" or "S"
@@ -62,10 +62,12 @@ public class GPSFrame {
 	    double LatDeg  = Math.floor(latitude);
 	    double LatPart = (latitude - LatDeg) * 100.0 / 60.0;
 	    _LatitudeValue = LatDeg+LatPart;
+	    if (_LatitudeSign=='S') _LatitudeValue =-_LatitudeValue;	    	
 
 	    double LonDeg  = Math.floor(longitude);
 	    double LonPart = (longitude - LonDeg) * 100.0 / 60.0;
 	    _LongitudeValue= LonDeg+LonPart;
+	    if (_LongitudeSign=='W') _LongitudeValue =-_LongitudeValue;	    	
 	}
 	
 	void FeedWithFrameGPRMC(String sFrame)

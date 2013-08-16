@@ -401,8 +401,11 @@ public class MainActivity extends Activity {
 			// String sFilename = "/mnt/sdcard/download/test.log";
 			//String sFilename = "/mnt/sdcard/download/GPS/GPS_20121209_122833.log"; // small log montreuil (22ko)
 			//String sFilename =ROOT+"/GPS/GPS_20121225_133848.log"; // St just - Pin (1.8Mo)
+			//String sFilename =ROOT+"/GPS/GPS_20121226_135637.log"; // balade a Pin (1Mo)
 			
-			String sFilename =ROOT+"/GPS/GPS_20121226_135637.log"; // balade a Pin (1Mo)
+			//String sFilename =ROOT+"/GPS/picnic.log";
+			//String sFilename =ROOT+"/GPS/SouthAfrica.log";
+			String sFilename =ROOT+"/GPS/SouthAmerica.log";
 	
 			_GPSLog =new GPSLog();
 			_GPSLog.Init(sFilename);
@@ -456,7 +459,7 @@ public class MainActivity extends Activity {
 				while ((aDataRow = myReader.readLine()) != null)
 				{
 					MainActivity._GPSLog.FeedWithNmeaFrame(aDataRow);
-					
+
 					_nFilePos +=aDataRow.length() + 2;		// +2 = CR+LF
 					double ratio =((double)_nFilePos) / ((double)_nFileSize);
 					publishProgress((int)(100.0f*ratio));
@@ -465,10 +468,11 @@ public class MainActivity extends Activity {
 				myReader.close();
 				
 				// -----------------------------
-				
-				String sGPXOut =MainActivity.ROOT+"/GPS/test.gpx";
-				MainActivity._GPSLog.WriteGPX(sGPXOut);
-				
+				//String sGPXOut =MainActivity.ROOT+"/GPS/picnic";
+				//String sGPXOut =MainActivity.ROOT+"/GPS/SouthAfrica";
+				String sGPXOut =MainActivity.ROOT+"/GPS/SouthAmerica";
+				MainActivity._GPSLog.WriteGPX(sGPXOut+".gpx");
+				MainActivity._GPSLog.WriteKML(sGPXOut+".kml");
 				// -----------------------------
 			}
 	        catch (Exception e)
