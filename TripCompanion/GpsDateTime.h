@@ -4,10 +4,10 @@
 #include <QtGlobal>
 #include <QString>
 
-class GpsTime
+class GpsDateTime
 {
 public:
-			GpsTime();
+			GpsDateTime();
 
 	inline qint64	GetPacked() const
 	{
@@ -30,7 +30,7 @@ public:
 
 	inline void FromExifDate(const QString& sExifDate)
 	{
-		// Format : "2006:12:23 10:07:26"
+		// Format : "2013:08:26 09:31:58"
 		_nYear		=sExifDate.mid(0,4).toInt();
 		_nMonth		=sExifDate.mid(5,2).toInt();
 		_nDay		=sExifDate.mid(8,2).toInt();
@@ -38,6 +38,15 @@ public:
 		_nMinutes	=sExifDate.mid(14,2).toInt();
 		_nSeconds	=sExifDate.mid(17,2).toInt();
 	}
+
+	inline void ToExifDate(QString& sExifDateOut)
+	{
+		// Format : "2013:08:26 09:31:58"
+		sExifDateOut.reserve(20);
+		sExifDateOut.sprintf("%04d:%02d:%02d %02d:%02d:%02d", _nYear, _nMonth, _nDay, _nHour, _nMinutes, _nSeconds);
+	}
+
+	void	FixOffsetTime(int nHour);
 
 	int		_nHour;
 	int		_nMinutes;

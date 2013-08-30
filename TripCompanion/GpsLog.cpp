@@ -21,19 +21,21 @@ GpsLog::~GpsLog()
 
 void GpsLog::Load()
 {
+	_pLib->Print("Load " + _sFilename);
+
 	_nTimeStart	=0;
 	_nTimeEnd	=0;
 
-	QFile file(_pLib->_pSettings->_sSrcLog + _sFilename);
+	QFile file(_pLib->_pSettings->_sSrcLog + "/" + _sFilename);
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
-        _pLib->Print("Failed to open " + _sFilename);
+		_pLib->Print("   Failed to open " + _sFilename);
 		return;
 	}
 
     _pLib->SetFile(_sFilename);
 	_pLib->SetStatus("Read LOG");
-    _pLib->Print("Read " + _sFilename);
+	_pLib->Print("   Read");
 
 	const int nTotalSize =file.size();
 
@@ -87,10 +89,10 @@ void GpsLog::Load()
 		_nTimeEnd	=_lFrames.last()->_Time.GetPacked();
 	}
 
-	_pLib->Print(QString("   > %1 frames").arg(_lFrames.size()));
+	_pLib->Print(QString("   %1 frames").arg(_lFrames.size()));
 }
 
-GpsFrame* GpsLog::FindGpsFrame(const GpsTime& gTime)
+GpsFrame* GpsLog::FindGpsFrame(const GpsDateTime& gTime)
 {
 	const qint64 n64TimeFind =gTime.GetPacked();
 	if (n64TimeFind>=_nTimeStart && n64TimeFind<=_nTimeEnd)
@@ -144,18 +146,18 @@ void GpsLog::WriteGPX()
 	QFileInfo fileinfo(_sFilename);
 
     QString	sGpxShort =fileinfo.baseName() +".gpx";
-    QString	sGpxFilename =_pLib->_pSettings->_sDstGpx + sGpxShort;
+	QString	sGpxFilename =_pLib->_pSettings->_sDstGpx + "/" + sGpxShort;
 
 	QFile file(sGpxFilename);
 	if (!file.open(QIODevice::WriteOnly) || _lFrames.size()<2)
 	{
-        _pLib->Print("Failed to open " + sGpxShort);
+		_pLib->Print("   Failed to open " + sGpxShort);
 		return;		// fail
 	}
 
     _pLib->SetFile(sGpxShort);
     _pLib->SetStatus("Write GPX");
-    _pLib->Print("Write " + sGpxShort);
+	_pLib->Print("   Write " + sGpxShort);
 
 	QXmlStreamWriter xmlWriter(&file);
 	xmlWriter.setAutoFormatting(true);
@@ -205,7 +207,7 @@ void GpsLog::WriteGPX()
 
 	file.close();
 
-    _pLib->Print("End Write " + sGpxShort);
+	_pLib->Print("   End Write " + sGpxShort);
 }
 
 	/*
@@ -244,18 +246,18 @@ void GpsLog::WriteKML()
 
 	QString sBaseName =fileinfo.baseName();
     QString	sKmlShort =sBaseName +".kml";
-    QString	sKmlFilename =_pLib->_pSettings->_sDstKml + sKmlShort;
+	QString	sKmlFilename =_pLib->_pSettings->_sDstKml + "/" + sKmlShort;
 
     QFile file(sKmlFilename);
 	if (!file.open(QIODevice::WriteOnly) || _lFrames.size()<2)
 	{
-        _pLib->Print("Failed to open " + sKmlFilename);
+		_pLib->Print("   Failed to open " + sKmlFilename);
 		return;		// fail
 	}
 
     _pLib->SetFile(sKmlShort);
     _pLib->SetStatus("Write KML");
-    _pLib->Print("Write " + sKmlShort);
+	_pLib->Print("   Write " + sKmlShort);
 
 	QXmlStreamWriter xmlWriter(&file);
 	xmlWriter.setAutoFormatting(true);
@@ -320,6 +322,8 @@ void GpsLog::WriteKML()
 	xmlWriter.writeEndDocument();
 
 	file.close();
+	_pLib->Print("   End Write " + sKmlShort);
+
 }
 
 

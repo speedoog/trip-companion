@@ -5,7 +5,7 @@
 #include <QThread>
 
 class GpsFrame;
-class GpsTime;
+class GpsDateTime;
 class TcLib;
 
 class GpsLog
@@ -15,7 +15,7 @@ public:
 				~GpsLog();
 
 	void		Load();
-	GpsFrame*	FindGpsFrame(const GpsTime& gTime);
+	GpsFrame*	FindGpsFrame(const GpsDateTime& gTime);
 
 	void		WriteGPX();
 	void		WriteKML();

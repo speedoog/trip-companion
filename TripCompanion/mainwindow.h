@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include "TcLib.h"
-//#include "Settings.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,12 +16,11 @@ class MainWindow : public QMainWindow
     Q_OBJECT
     
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+	explicit	MainWindow(QWidget *parent = 0);
+				~MainWindow();
     
 public slots:
 	void        OnButtonExec();
-//	void        OnButtonConfig();
 	void		OnProgressUpdate(int nProgress);
 	void		OnSetFile(QString sFile);
 	void		OnSetStatus(QString sStatus);
@@ -39,7 +37,6 @@ private:
 	TcSettings*		_pSettings;
 
 	int				_nTabCurrent;
-
 	bool			_bScanDone;
 };
 
