@@ -9,7 +9,7 @@ class TcSettings;
 class GpsLog;
 class TcPhoto;
 class GpsFrame;
-class GpsTime;
+class GpsDateTime;
 
 class TcLib : public QObject
 {
@@ -28,10 +28,10 @@ public:
 	void			SetFile(const QString& sFile);
 	void			SetStatus(const QString& sStatus);
 
-	void			SetSettings(TcSettings* pSettings) { _pSettings =pSettings; }
-	TcSettings*		GetSettings()					 { return _pSettings;	  }
+	void			SetSettings(TcSettings* pSettings)		{  _pSettings =pSettings; }
+	TcSettings*		GetSettings()							{ return _pSettings;	  }
 
-	GpsFrame*		FindGpsFrame(const GpsTime& gTime);
+	GpsFrame*		FindGpsFrame(const GpsDateTime& gTime);
 
 public slots:
 	void	OnLoadStart();

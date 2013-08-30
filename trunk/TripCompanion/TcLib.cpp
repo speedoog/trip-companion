@@ -89,7 +89,7 @@ void TcLib::OnLoadStart()
 	Print("Load JPG end !");
 }
 
-GpsFrame* TcLib::FindGpsFrame(const GpsTime& gTime)
+GpsFrame* TcLib::FindGpsFrame(const GpsDateTime& gTime)
 {
 	for (int i = 0; i < _lGpsLogs.size(); ++i)
 	{

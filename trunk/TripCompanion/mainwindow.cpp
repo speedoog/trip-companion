@@ -7,16 +7,6 @@
 
 GpsLog* pGpslog;
 
-/*
-#ifdef WIN32
-	QString	sRootDirLog		="C:/Users/bfa/Downloads/-- GPS --/";
-	QString	sRootDirPhoto	="C:/Users/bfa/Downloads/-- JPG --/";
-#else
-	QString	sRootDirLog		="/sdcard/download/GPS/";
-	QString	sRootDirPhoto	="/sdcard/download/JPG/";
-#endif
-*/
-
 MainWindow::MainWindow(QWidget *parent)
 : QMainWindow(parent)
 , ui(new Ui::MainWindow)
@@ -34,7 +24,6 @@ MainWindow::MainWindow(QWidget *parent)
 #endif
 
 	connect(ui->btnExec,	SIGNAL(clicked()), this, SLOT(OnButtonExec())	);
-//	connect(ui->btnConfig,	SIGNAL(clicked()), this, SLOT(OnButtonConfig())	);
 	connect(ui->tabMain,	SIGNAL(currentChanged(int)), this, SLOT(OnTabChanged(int))	);
 
 	_nTabCurrent =ui->tabMain->currentIndex();
@@ -68,7 +57,6 @@ void MainWindow::OnButtonExec(void)
 
 		_bScanDone =true;
 		ui->btnExec->setText("Generate");
-
 		ui->btnExec->setEnabled(true);
 	}
 	else
@@ -77,13 +65,6 @@ void MainWindow::OnButtonExec(void)
 	}
 }
 
-/*
-void MainWindow::OnButtonConfig()
-{
-	_Settings.exec();
-	update();
-}
-*/
 void MainWindow::OnTabChanged(int nIndex)
 {
 	if (_nTabCurrent==1 && nIndex !=1)	// leaving config

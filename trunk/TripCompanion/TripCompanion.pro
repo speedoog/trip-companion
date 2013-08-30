@@ -64,12 +64,12 @@ SOURCES += main.cpp\
     exiv/canonmn.cpp \
     exiv/bmpimage.cpp \
     exiv/basicio.cpp \
-    GpsTime.cpp \
     TcPhoto.cpp \
     GpsFrame.cpp \
     GpsLog.cpp \
     TcLib.cpp \
-    TcSettings.cpp
+    TcSettings.cpp \
+    GpsDateTime.cpp
 
 HEADERS  += \
     exiv/xmpsidecar.hpp \
@@ -139,13 +139,13 @@ HEADERS  += \
     exiv/bmpimage.hpp \
     exiv/basicio.hpp \
     exiv/actions.hpp \
-    GpsTime.h \
     TcPhoto.h \
     GpsFrame.h \
     GpsLog.h \
     mainwindow.h \
     TcLib.h \
-    TcSettings.h
+    TcSettings.h \
+    GpsDateTime.h
 
 FORMS    += mainwindow.ui
 

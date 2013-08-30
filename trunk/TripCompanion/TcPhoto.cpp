@@ -8,7 +8,7 @@
 
 #include "TcLib.h"
 #include "TcSettings.h"
-#include "GpsTime.h"
+#include "GpsDateTime.h"
 #include "GpsFrame.h"
 
 #include "exiv/exiv2.hpp"
@@ -47,10 +47,10 @@ void TcPhoto::Batch()
 {
 	_pLib->SetFile(_sFilename);
 
-	QString sFullFilename =_sPath+_sFilename;
+	QString sFullFilename =_sPath+"/"+_sFilename;
 
 	_pLib->SetStatus("Read exif");
-	_pLib->SetProgress(0);
+//	_pLib->SetProgress(0);
 	_pLib->Print("");
 	_pLib->Print("Batch File "+_sFilename);
 	QByteArray sUTF8 = sFullFilename.toUtf8();
@@ -60,13 +60,13 @@ void TcPhoto::Batch()
 	Exiv2::ExifData& exifData = image->exifData();
 	Exiv2::Exifdatum& tagDate = exifData["Exif.Photo.DateTimeOriginal"];		// http://www.exiv2.org/tags.html
 
-	QString	sDate(tagDate.toString().c_str());
+	QString	sExifDate(tagDate.toString().c_str());
 
-	GpsTime	gTime;
-	gTime.FromExifDate(sDate);
+	GpsDateTime	gTime;
+	gTime.FromExifDate(sExifDate);
 
 	_pLib->SetStatus("FindGpsFrame");
-	_pLib->SetProgress(10);
+//	_pLib->SetProgress(10);
 	GpsFrame* pGpsFrame =_pLib->FindGpsFrame(gTime);
 	if (pGpsFrame)
 	{
@@ -107,16 +107,38 @@ void TcPhoto::Batch()
 		_pLib->Print("   found " + QString::number(pGpsFrame->_dLatitudeValue) + " " +  QString::number(pGpsFrame->_dLongitudeValue) );
 	}
 
+	// ----------- Fix Time Date
+	{
+		GpsDateTime	gTimeFix =gTime;
+		int nTimeOffset =_pLib->_pSettings->_nTimeOffset;
+		if (_pLib->_pSettings->_bSummerTime)
+		{
+			++nTimeOffset;
+		}
+		gTimeFix.FixOffsetTime(nTimeOffset);
+		gTimeFix.ToExifDate(sExifDate);				// patch exif date
+
+		tagDate =std::string(sExifDate.toUtf8().data());
+	}
+
+	// ------------ Exif Copyright
+	{
+		exifData["Exif.Image.ImageDescription"] = "Nos Aventures aux Amériques";
+		exifData["Exif.Photo.UserComment"]		= "http://www.nosaventuresauxameriques.com";
+		exifData["Exif.Image.XPComment"]		= "http://www.nosaventuresauxameriques.com";
+		exifData["Exif.Image.Copyright"]		= "Copyright Claire Masson & Bertrand Faure";
+	}
+
 	// ----------- ReadFromFile
 	_pLib->SetStatus("Read");
-	_pLib->SetProgress(20);
+//	_pLib->SetProgress(20);
 	_pLib->Print("   Read Jpeg "+_sFilename);
 
 	QImage qimageSrc(sFullFilename);
 
 	// ----------- Resize
 	_pLib->SetStatus("Resize");
-	_pLib->SetProgress(50);
+//	_pLib->SetProgress(50);
 	_pLib->Print("   Resize");
 	const int nSizeSrcX =qimageSrc.width();
 	const int nSizeSrcY =qimageSrc.height();
@@ -126,7 +148,7 @@ void TcPhoto::Batch()
 
 	// ----------- Thmubnail
 	_pLib->SetStatus("Thmubnail");
-	_pLib->SetProgress(70);
+//	_pLib->SetProgress(70);
 	_pLib->Print("   Thumb");
 	QImage qimageThumb =qimageDst.scaledToHeight(300);
 	QPixmap qPixThumb =QPixmap::fromImage(qimageThumb);
@@ -134,22 +156,22 @@ void TcPhoto::Batch()
 
 	// ----------- Write out file
 	_pLib->SetStatus("Save");
-	_pLib->SetProgress(80);
+//	_pLib->SetProgress(80);
 	_pLib->Print("   SaveToFile");
 
-	QString sOutFile =_pLib->GetSettings()->_sDstJpg+"s"+_sFilename;
+	QString sOutFile =_pLib->GetSettings()->_sDstJpg+"/s"+_sFilename;
 
 	qimageDst.save(sOutFile, "JPG", _pLib->_pSettings->_nCompression);
 
 	// ----------- Write exif
 	_pLib->SetStatus("Write exif");
-	_pLib->SetProgress(90);
+//	_pLib->SetProgress(90);
 	QByteArray sOutUTF8 = sOutFile.toUtf8();
 	Exiv2::Image::AutoPtr imageDst = Exiv2::ImageFactory::open( sOutUTF8.data() );
 	imageDst->setExifData(exifData);
 	imageDst->writeMetadata();
 
-	_pLib->SetProgress(100);
+//	_pLib->SetProgress(100);
 }
 
 /*
@@ -179,7 +201,7 @@ void TcPhoto::LoadExif()
 
 	QString	sDate(tagDate.toString().c_str());
 
-	GpsTime	gTime;
+	GpsDateTime	gTime;
 	gTime.FromExifDate(sDate);
 	_pLib->Print( QString("%1 > %2").arg(_sFilename).arg(sDate) );
 

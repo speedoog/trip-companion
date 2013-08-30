@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QStringList>
-#include "GpsTime.h"
+#include "GpsDateTime.h"
 
 class GpsFrame
 {
@@ -26,15 +26,15 @@ public:
 
 public:
 
-	GpsTime	_Time;
+	GpsDateTime	_Time;
 
-    double	_dLatitudeValue;		// Latitude  => 4851.8273
-    double	_dLongitudeValue;		// Longitude => 00226.9146
+	double		_dLatitudeValue;		// Latitude  => 4851.8273
+	double		_dLongitudeValue;		// Longitude => 00226.9146
 
-    char	_nLatitudeSign;			// 'N' or 'S'
-    char	_nLongitudeSign;		// 'E' or 'W'
+	char		_nLatitudeSign;			// 'N' or 'S'
+	char		_nLongitudeSign;		// 'E' or 'W'
 
-    double	_dAltitude;             // altitude
+	double		_dAltitude;             // altitude
 
 };
 
