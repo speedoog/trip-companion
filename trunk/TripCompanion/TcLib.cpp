@@ -28,6 +28,7 @@ void TcLib::Scan()
 
 		QDir dirLog(sRootDirLog);
 		QStringList slFiles = dirLog.entryList(QStringList("*.log"), QDir::NoDotAndDotDot|QDir::System|QDir::Hidden|QDir::Files, QDir::DirsFirst);
+		slFiles.sort();
 		for (int i = 0; i < slFiles.size(); ++i)
 		{
 			GpsLog* pGpslog =new GpsLog(this, slFiles[i]);
@@ -73,6 +74,14 @@ void TcLib::OnLoadStart()
 	}
 	SetProgress(100);
 	Print("Load GPS end !");
+
+	// global log
+	{
+		GpsLog GpslogGlobal(this, "global.glog");
+		GpslogGlobal.Load();
+		GpslogGlobal.WriteGPX();
+		GpslogGlobal.WriteKML();
+	}
 
 	Print("Load JPG start !");
 

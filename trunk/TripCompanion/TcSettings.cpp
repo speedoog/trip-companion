@@ -1,5 +1,5 @@
 #include "TcSettings.h"
-#include "ui_Settings.h"
+//#include "ui_Settings.h"
 
 #include <QSettings>
 #include <QFileDialog>

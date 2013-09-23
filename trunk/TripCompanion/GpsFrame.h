@@ -35,6 +35,8 @@ public:
 	char		_nLongitudeSign;		// 'E' or 'W'
 
 	double		_dAltitude;             // altitude
+	double		_dHDOP;					// (Horizontal dilution of precision)
+	int			_nSatelites;
 
 };
 

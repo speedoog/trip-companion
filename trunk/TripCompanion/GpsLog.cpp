@@ -26,10 +26,17 @@ void GpsLog::Load()
 	_nTimeStart	=0;
 	_nTimeEnd	=0;
 
-	QFile file(_pLib->_pSettings->_sSrcLog + "/" + _sFilename);
-	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+	QFile fileIn(_pLib->_pSettings->_sSrcLog + "/" + _sFilename);
+	if (!fileIn.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
 		_pLib->Print("   Failed to open " + _sFilename);
+		return;
+	}
+
+	QFile fileOut(_pLib->_pSettings->_sSrcLog + "/global.glog");
+	if (!fileOut.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
+	{
+		_pLib->Print("   Failed to write global.glog");
 		return;
 	}
 
@@ -37,18 +44,27 @@ void GpsLog::Load()
 	_pLib->SetStatus("Read LOG");
 	_pLib->Print("   Read");
 
-	const int nTotalSize =file.size();
+	const int nTotalSize =fileIn.size();
+
+	const int iFrameSkip =6*30;
+	int iCurrentFrame =2;
 
 	GpsFrame* pGpsFrameLast =NULL;
 	GpsFrame::GpsFrameType	nTypeLast =GpsFrame::GF_OTHER;
 	int			nPackedTimeLast	=0;
-	while (!file.atEnd())
+	while (!fileIn.atEnd())
 	{
-		QString		sLine =QString(file.readLine());
+		QByteArray  baLine =fileIn.readLine();
+		QString		sLine =QString(baLine);
 		QStringList slSplit =sLine.split(",");
 
 		GpsFrame::GpsFrameType nType =GpsFrame::GetFrameType(slSplit);
 		int			nPackedTime	=0;
+
+		if (iCurrentFrame==1)
+		{
+			fileOut.write(baLine);
+		}
 
 		GpsFrame* pGpsFrame =NULL;
 		switch(nType)
@@ -71,6 +87,12 @@ void GpsLog::Load()
 					pGpsFrame =pGpsFrameLast;
 					pGpsFrame->FeedWithFrameGPRMC(slSplit);
 				}
+
+				iCurrentFrame--;
+				if (iCurrentFrame==0)
+				{
+					iCurrentFrame =iFrameSkip;
+				}
 			}
 			break;
 		default:;
@@ -79,7 +101,7 @@ void GpsLog::Load()
 		nTypeLast	  =nType;
 		pGpsFrameLast =pGpsFrame;
 
-		int nPos =file.pos();
+		int nPos =fileIn.pos();
 		_pLib->SetProgress((100*nPos)/nTotalSize);
 	}
 
@@ -88,8 +110,53 @@ void GpsLog::Load()
 		_nTimeStart =_lFrames[0]->_Time.GetPacked();
 		_nTimeEnd	=_lFrames.last()->_Time.GetPacked();
 	}
+	fileIn.close();
+	fileOut.close();
 
 	_pLib->Print(QString("   %1 frames").arg(_lFrames.size()));
+
+	// ------- compute stats
+	double	dHDOPmean	=0.0;
+	double	dSatelites	=0.0;
+	int		nHDOP1		=0;
+	int		nHDOP2		=0;
+	int		nHDOP3		=0;
+	int		nHDOPmax	=0;
+	const int nCount =_lFrames.size();
+	for (int i = 0; i < nCount; ++i)
+	{
+		GpsFrame* pGpsFrame =_lFrames[i];
+		double	dHDOP =pGpsFrame->_dHDOP;
+		if (dHDOP<=1.0f)
+		{
+			++nHDOP1;
+		}
+		else if (dHDOP<=2.0f)
+		{
+			++nHDOP2;
+		}
+		else if (dHDOP<=3.0f)
+		{
+			++nHDOP3;
+		}
+		else
+		{
+			++nHDOPmax;
+		}
+
+		dHDOPmean	+=dHDOP;
+		dSatelites	+=pGpsFrame->_nSatelites;
+	}
+	dHDOPmean	/=nCount;
+	dSatelites	/=nCount;
+
+	_pLib->Print(QString("   HDOP mean	%1").arg(dHDOPmean, 0, 'f', 1));
+	_pLib->Print(QString("     <1	%1 %").arg(int((100.0*nHDOP1)/double(nCount))));
+	_pLib->Print(QString("     <2	%1 %").arg(int((100.0*nHDOP2)/double(nCount))));
+	_pLib->Print(QString("     <3	%1 %").arg(int((100.0*nHDOP3)/double(nCount))));
+	_pLib->Print(QString("     >3	%1 %").arg(int((100.0*nHDOPmax)/double(nCount))));
+	_pLib->Print(QString("   Satelites mean	%1").arg(dSatelites, 0, 'f', 1));
+
 }
 
 GpsFrame* GpsLog::FindGpsFrame(const GpsDateTime& gTime)
@@ -279,8 +346,8 @@ void GpsLog::WriteKML()
 
 					xmlWriter.writeStartElement("LineStyle");
 					{
-						xmlWriter.writeTextElement("color",	"99ffac59");
-						xmlWriter.writeTextElement("width",	"6");
+						xmlWriter.writeTextElement("color",	"ff5d2895");
+						xmlWriter.writeTextElement("width",	"4");
 					}
 					xmlWriter.writeEndElement();
 
