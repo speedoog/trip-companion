@@ -14,6 +14,8 @@ GpsFrame::GpsFrame()
 	_nLongitudeSign		=0;
 
 	_dAltitude			=0.0;
+	_dHDOP				=1.0f;
+	_nSatelites			=0;
 }
 
 GpsFrame::GpsFrameType GpsFrame::GetFrameType(const QStringList& slSplitFrame)
@@ -66,7 +68,11 @@ void GpsFrame::FeedWithFrameGPGGA(const QStringList& slSplitFrame)
 
 	// 6    = GPS quality indicator (0=invalid; 1=GPS fix; 2=Diff. GPS fix)
 	// 7    = Number of satellites in use [not those in view]
+	_nSatelites	=slSplitFrame[7].toInt();
+
 	// 8    = Horizontal dilution of position
+	_dHDOP =slSplitFrame[8].toDouble();
+
 	// 9    = Antenna altitude above/below mean sea level (geoid)
 	// 10   = Meters  (Antenna height unit)
 	// 11   = Geoidal separation (Diff. between WGS-84 earth ellipsoid and mean sea level.  -=geoid is below WGS-84 ellipsoid)

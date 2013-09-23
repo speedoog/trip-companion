@@ -15,7 +15,6 @@ public:
 		val =_nYear;
 		val *=100;	val +=_nMonth;
 		val *=100;	val +=_nDay;
-
 		val *=100;	val +=_nHour;
 		val *=100;	val +=_nMinutes;
 		val *=100;	val +=_nSeconds;
@@ -54,7 +53,7 @@ public:
 
 	int		_nDay;
 	int		_nMonth;
-	int		_nYear;
+	int		_nYear;		// 4 digits format => 2013
 };
 
 #endif // GPSTIME_H

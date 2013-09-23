@@ -10,33 +10,34 @@ class TcSettings : public	QObject
 	Q_OBJECT
 	
 public:
-	explicit	TcSettings(MainWindow* pMainWindow);
-				~TcSettings();
+	explicit		TcSettings(MainWindow* pMainWindow);
+					~TcSettings();
 
-	void		Load();
-	void		Save();
+	void			Load();
+	void			Save();
+	inline	QLabel*	GetLabelPreview() { return ui->labelPreview; }
 
 public slots:
-	void        OnEditCompression(QString sCompression);
-	void		OnEditMegaPixels(QString sMegaPixels);
+	void	        OnEditCompression(QString sCompression);
+	void			OnEditMegaPixels(QString sMegaPixels);
 
-	void		OnEditSrcLog(QString sSrcLog);
-	void		OnClickSrcLog();
+	void			OnEditSrcLog(QString sSrcLog);
+	void			OnClickSrcLog();
 
-	void		OnEditSrcJpg(QString sSrcJpg);
-	void		OnClickSrcJpg();
+	void			OnEditSrcJpg(QString sSrcJpg);
+	void			OnClickSrcJpg();
 
-	void		OnEditDstGpx(QString sDstGpx);
-	void		OnClickDstGpx();
+	void			OnEditDstGpx(QString sDstGpx);
+	void			OnClickDstGpx();
 
-	void		OnEditDstKml(QString sDstKml);
-	void		OnClickDstKml();
+	void			OnEditDstKml(QString sDstKml);
+	void			OnClickDstKml();
 
-	void		OnEditDstJpg(QString sDstJpg);
-	void		OnClickDstJpg();
+	void			OnEditDstJpg(QString sDstJpg);
+	void			OnClickDstJpg();
 
-	void		OnTimeOffsetChanged(int nIndex);
-	void		OnSummerTimeChanged(int nState);
+	void			OnTimeOffsetChanged(int nIndex);
+	void			OnSummerTimeChanged(int nState);
 
 private:
 	MainWindow*		_pMainWindow;

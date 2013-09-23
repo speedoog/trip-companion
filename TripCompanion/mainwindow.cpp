@@ -5,6 +5,7 @@
 #include "TcSettings.h"
 #include "gpslog.h"
 
+
 GpsLog* pGpslog;
 
 MainWindow::MainWindow(QWidget *parent)
