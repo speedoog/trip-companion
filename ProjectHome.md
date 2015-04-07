@@ -1,0 +1,1 @@
+Photo, Map, Gps, blog, Sync for offline usage
